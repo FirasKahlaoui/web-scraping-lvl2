@@ -10,4 +10,5 @@ from itemadapter import ItemAdapter
 
 class MyprojectPipeline:
     def process_item(self, item, spider):
+        # Process the item here (e.g., save to database, clean data)
         return item
