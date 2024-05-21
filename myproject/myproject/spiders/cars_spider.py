@@ -21,13 +21,20 @@ class CarsSpider(scrapy.Spider):
 
         self.log(f'Parsing {vehicle_type} page')
 
-        for car in response.css('div.horizontal-model-year-card'):
+        for car in response.css('div.new-car-model-card'):
             image = car.css(
-                'div.horizontal-model-year-card-image img::attr(src)').get()
+                'div.new-car-model-card-image img::attr(src)').get()
             name = car.css(
-                'div.horizontal-model-year-card-details-compare a::text').get()
+                'div.new-car-model-card-name::text').get().strip()
             start_price = car.css(
-                'div.horizontal-model-year-card-details-compare::text').re_first(r'\$(\d+,\d+)')
+                'div.new-car-model-card-price::text').re_first(r'\$(\d+,\d+)')
+
+            if image is None:
+                self.log('Image not found')
+            if name is None:
+                self.log('Name not found')
+            if start_price is None:
+                self.log('Start price not found')
 
             self.log(
                 f'Found car: {name} with price {start_price} and image {image}')
@@ -38,9 +45,3 @@ class CarsSpider(scrapy.Spider):
                 start_price=start_price,
                 type=vehicle_type
             )
-
-        next_page = response.css(
-            'a.shop-srp-listings__vehicle-card-link::attr(href)').get()
-        if next_page is not None:
-            next_page = response.urljoin(next_page)
-            yield scrapy.Request(next_page, callback=self.parse)
