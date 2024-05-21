@@ -19,8 +19,6 @@ class CarsSpider(scrapy.Spider):
     def parse(self, response):
         vehicle_type = response.url.split('=')[-1].replace('-', ' ').title()
 
-        self.log(f'Parsing {vehicle_type} page')
-
         for car in response.css('div.new-car-model-card'):
             image = car.css(
                 'div.new-car-model-card-image img::attr(src)').get()
@@ -28,16 +26,6 @@ class CarsSpider(scrapy.Spider):
                 'div.new-car-model-card-name::text').get().strip()
             start_price = car.css(
                 'div.new-car-model-card-price::text').re_first(r'\$(\d+,\d+)')
-
-            if image is None:
-                self.log('Image not found')
-            if name is None:
-                self.log('Name not found')
-            if start_price is None:
-                self.log('Start price not found')
-
-            self.log(
-                f'Found car: {name} with price {start_price} and image {image}')
 
             yield CarItem(
                 image=image,
